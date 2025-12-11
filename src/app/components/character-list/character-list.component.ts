@@ -28,6 +28,7 @@ export class CharacterListComponent implements OnInit, OnDestroy {
   currentPage = 1;
   totalPages = 1;
   itemsPerPage = 20;
+  paginationInfo: { pages: number } | null = null;
   
   // Filtros
   filters: FilterParams = {
@@ -47,7 +48,7 @@ export class CharacterListComponent implements OnInit, OnDestroy {
 
   constructor(
     private apiService: ApiService,
-    private favoritesService: FavoritesService
+    public favoritesService: FavoritesService
   ) {}
 
   ngOnInit(): void {
@@ -160,4 +161,29 @@ export class CharacterListComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+    getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const totalPages = this.paginationInfo?.pages || 0;
+    
+    // Mostrar máximo 5 páginas alrededor de la actual
+    const currentPage = this.currentPage;
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, currentPage + 2);
+    
+    // Ajustar si estamos cerca del inicio
+    if (currentPage <= 3) {
+        endPage = Math.min(5, totalPages);
+    }
+    
+    // Ajustar si estamos cerca del final
+    if (currentPage >= totalPages - 2) {
+        startPage = Math.max(1, totalPages - 4);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+    }
+    
+    return pages;
+    }
 }
