@@ -1,0 +1,170 @@
+<div class="container my-4" *ngIf="!loading && character">
+  <!-- Botón de regreso -->
+  <button class="btn btn-outline-secondary mb-4" (click)="goBack()">
+    ← Volver al listado
+  </button>
+
+  <!-- Tarjeta de detalle principal -->
+  <div class="card shadow-lg border-0">
+    <div class="row g-0">
+      <!-- Columna de imagen -->
+      <div class="col-md-4">
+        <div class="position-relative h-100">
+          <img [src]="character.image" 
+               [alt]="character.name"
+               class="img-fluid rounded-start h-100 w-100 object-fit-cover">
+          
+          <!-- Badge de estado -->
+          <div class="position-absolute top-0 end-0 m-3">
+            <span class="badge status-badge px-3 py-2" 
+                  [ngClass]="{
+                    'bg-success': character.status === 'Alive',
+                    'bg-danger': character.status === 'Dead',
+                    'bg-secondary': character.status === 'unknown'
+                  }">
+              {{ character.status }}
+            </span>
+          </div>
+
+          <!-- Botón de favoritos -->
+          <div class="position-absolute bottom-0 start-0 m-3">
+            <button class="btn btn-lg favorite-btn-detail"
+                    (click)="favoritesService.toggleFavorite(character)"
+                    [ngClass]="{
+                      'btn-warning': favoritesService.isFavorite(character.id),
+                      'btn-outline-warning': !favoritesService.isFavorite(character.id)
+                    }"
+                    [attr.aria-label]="favoritesService.isFavorite(character.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+                    title="Agregar a favoritos">
+              {{ favoritesService.isFavorite(character.id) ? '★ Favorito' : '☆ Agregar a favoritos' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna de información -->
+      <div class="col-md-8">
+        <div class="card-body h-100 d-flex flex-column p-4">
+          <!-- Header con nombre -->
+          <div class="mb-4">
+            <h1 class="card-title display-5 fw-bold text-primary">
+              {{ character.name }}
+            </h1>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+              <span class="badge bg-info text-dark">
+                {{ character.species }}
+              </span>
+              <span class="badge bg-secondary">
+                {{ character.gender }}
+              </span>
+              <span *ngIf="character.type" class="badge bg-dark">
+                {{ character.type }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Información detallada -->
+          <div class="row g-4 mb-4">
+            <!-- Origen -->
+            <div class="col-md-6">
+              <div class="detail-card p-3 rounded">
+                <h5 class="text-muted mb-2">🌍 Origen</h5>
+                <p class="fs-5 mb-0">{{ character.origin.name }}</p>
+                <small class="text-muted">
+                  {{ character.origin.url ? 'Conocido' : 'Desconocido' }}
+                </small>
+              </div>
+            </div>
+
+            <!-- Ubicación actual -->
+            <div class="col-md-6">
+              <div class="detail-card p-3 rounded">
+                <h5 class="text-muted mb-2">📍 Ubicación Actual</h5>
+                <p class="fs-5 mb-0">{{ character.location.name }}</p>
+                <small class="text-muted">Última localización conocida</small>
+              </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="col-md-6">
+              <div class="detail-card p-3 rounded">
+                <h5 class="text-muted mb-2">📅 Primera Aparición</h5>
+                <p class="fs-5 mb-0">
+                  {{ character.created | date:'longDate' }}
+                </p>
+                <small class="text-muted">Fecha de creación en la API</small>
+              </div>
+            </div>
+
+            <!-- ID del personaje -->
+            <div class="col-md-6">
+              <div class="detail-card p-3 rounded">
+                <h5 class="text-muted mb-2">🔢 ID del Personaje</h5>
+                <p class="fs-5 mb-0">#{{ character.id }}</p>
+                <small class="text-muted">Identificador único</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Episodios -->
+          <div class="mt-auto">
+            <h4 class="mb-3">📺 Episodios en los que aparece</h4>
+            <div *ngIf="episodes.length > 0; else noEpisodes">
+              <div class="row row-cols-1 row-cols-md-2 g-3">
+                <div class="col" *ngFor="let episode of episodes">
+                  <div class="episode-card p-3 rounded">
+                    <h6 class="fw-bold mb-1">
+                      {{ getEpisodeNumber(episode.episode) }}: {{ episode.name }}
+                    </h6>
+                    <p class="text-muted mb-1 small">
+                      Fecha de emisión: {{ episode.air_date | date:'mediumDate' }}
+                    </p>
+                    <p class="mb-0 small">
+                      Código: {{ episode.episode }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <p class="text-muted mt-2 small">
+                Mostrando {{ episodes.length }} de {{ character.episode.length }} episodios
+              </p>
+            </div>
+            
+            <ng-template #noEpisodes>
+              <div class="alert alert-info">
+                No hay información de episodios disponible.
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="mt-3">Cargando detalles del personaje...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="alert alert-danger text-center mt-4">
+    ⚠️ {{ error }}
+    <button class="btn btn-outline-danger ms-3" routerLink="/">
+      Volver al inicio
+    </button>
+  </div>
+</div>
+
+<!-- Estado cuando no hay personaje -->
+<div *ngIf="!loading && !character && !error" class="container my-5 text-center">
+  <div class="alert alert-warning">
+    <h4>Personaje no encontrado</h4>
+    <p>El personaje que buscas no existe o fue eliminado.</p>
+    <button class="btn btn-primary" routerLink="/">
+      Ver todos los personajes
+    </button>
+  </div>
+</div>

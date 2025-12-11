@@ -1,0 +1,144 @@
+/* Character Card Styling */
+.character-card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.character-image {
+  height: 250px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  
+  .character-card:hover & {
+    transform: scale(1.05);
+  }
+}
+
+/* Status Badges */
+.status-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Favorite Button */
+.favorite-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.1);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Character Info */
+.character-info {
+  font-size: 0.85rem;
+  
+  small {
+    line-height: 1.4;
+  }
+}
+
+/* Pagination */
+.pagination {
+  .page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+  
+  .page-link {
+    color: var(--dark-color);
+    border: 1px solid #dee2e6;
+    
+    &:hover {
+      background-color: #f8f9fa;
+      color: var(--primary-color);
+    }
+    
+    &:focus {
+      box-shadow: 0 0 0 0.25rem rgba(0, 181, 204, 0.25);
+    }
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .character-image {
+    height: 200px;
+  }
+  
+  .character-card {
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .character-image {
+    height: 180px;
+  }
+  
+  .filters .col-md-3 {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Empty State */
+.alert-warning {
+  border-left: 4px solid #ffc107;
+  border-radius: 8px;
+}
+
+/* Loading Animation */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Card Body Layout */
+.card-body {
+  padding: 1.25rem;
+  
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--dark-color);
+  }
+}
+
+/* Accessibility */
+button:focus, 
+a:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .character-card {
+    border: 2px solid #000;
+  }
+  
+  .status-badge {
+    border: 1px solid #000;
+  }
+}

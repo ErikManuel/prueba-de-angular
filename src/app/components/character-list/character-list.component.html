@@ -1,0 +1,197 @@
+<div class="container mt-4">
+  <!-- Header -->
+  <header class="mb-4 text-center">
+    <h1 class="display-4 text-primary">🌌 Directorio Rick & Morty</h1>
+    <p class="lead">Explora todos los personajes de la serie</p>
+  </header>
+
+  <!-- Panel de Filtros -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header bg-dark text-white">
+      <h5 class="mb-0"> Filtros de Búsqueda</h5>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <!-- Búsqueda por nombre -->
+        <div class="col-md-3">
+          <label for="name" class="form-label">Nombre</label>
+          <input type="text" 
+                 id="name" 
+                 class="form-control" 
+                 [(ngModel)]="filters.name" 
+                 (ngModelChange)="onFilterChange()"
+                 placeholder="Ej: Rick Sanchez">
+        </div>
+
+        <!-- Filtro por estado -->
+        <div class="col-md-3">
+          <label for="status" class="form-label">Estado</label>
+          <select id="status" 
+                  class="form-select" 
+                  [(ngModel)]="filters.status" 
+                  (ngModelChange)="onFilterChange()">
+            <option *ngFor="let option of statusOptions" [value]="option">
+              {{ option || 'Todos los estados' }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Filtro por especie -->
+        <div class="col-md-3">
+          <label for="species" class="form-label">Especie</label>
+          <input type="text" 
+                 id="species" 
+                 class="form-control" 
+                 [(ngModel)]="filters.species" 
+                 (ngModelChange)="onFilterChange()"
+                 placeholder="Ej: Human, Alien">
+        </div>
+
+        <!-- Filtro por género -->
+        <div class="col-md-3">
+          <label for="gender" class="form-label">Género</label>
+          <select id="gender" 
+                  class="form-select" 
+                  [(ngModel)]="filters.gender" 
+                  (ngModelChange)="onFilterChange()">
+            <option *ngFor="let option of genderOptions" [value]="option">
+              {{ option || 'Todos los géneros' }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <button class="btn btn-outline-secondary me-2" (click)="clearFilters()">
+            🗑️ Limpiar Filtros
+          </button>
+          <button class="btn btn-warning" (click)="toggleFavoritesView()">
+            {{ showFavoritesOnly ? '👁️ Mostrar Todos' : '⭐ Solo Favoritos' }}
+          </button>
+        </div>
+        <div class="col-md-6 text-end">
+          <span class="badge bg-info text-dark">
+            Total: {{ filteredCharacters.length }} personajes
+          </span>
+          <span *ngIf="favorites.length > 0" class="badge bg-warning text-dark ms-2">
+            Favoritos: {{ favorites.length }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estados de carga/error -->
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="mt-2">Cargando personajes...</p>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger text-center">
+    ⚠️ {{ error }}
+    <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadCharacters()">
+      Reintentar
+    </button>
+  </div>
+
+  <div *ngIf="!loading && filteredCharacters.length === 0" class="alert alert-warning text-center">
+    📭 No se encontraron personajes con los filtros aplicados.
+  </div>
+
+  <!-- Grid de personajes -->
+  <div *ngIf="!loading && filteredCharacters.length > 0" class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+    <div class="col" *ngFor="let character of filteredCharacters">
+      <div class="card h-100 shadow-sm border-0 character-card">
+        <div class="position-relative">
+          <img [src]="character.image" 
+               [alt]="character.name"
+               class="card-img-top character-image">
+          
+          <!-- Badge de estado -->
+          <span class="status-badge position-absolute top-0 end-0 m-2" 
+                [ngClass]="{
+                  'bg-success': character.status === 'Alive',
+                  'bg-danger': character.status === 'Dead',
+                  'bg-secondary': character.status === 'unknown'
+                }">
+            {{ character.status }}
+          </span>
+
+          <!-- Botón de favorito -->
+          <button class="btn btn-sm position-absolute top-0 start-0 m-2 favorite-btn"
+                  (click)="favoritesService.toggleFavorite(character)"
+                  [ngClass]="{
+                    'btn-warning': favoritesService.isFavorite(character.id),
+                    'btn-outline-warning': !favoritesService.isFavorite(character.id)
+                  }"
+                  [attr.aria-label]="favoritesService.isFavorite(character.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'">
+            {{ favoritesService.isFavorite(character.id) ? '★' : '☆' }}
+          </button>
+        </div>
+
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">{{ character.name }}</h5>
+          
+          <div class="character-info mb-2">
+            <small class="text-muted d-block">
+              <strong>Especie:</strong> {{ character.species }}
+            </small>
+            <small class="text-muted d-block">
+              <strong>Género:</strong> {{ character.gender }}
+            </small>
+            <small class="text-muted d-block">
+              <strong>Origen:</strong> {{ character.origin.name }}
+            </small>
+            <small class="text-muted d-block">
+              <strong>Ubicación:</strong> {{ character.location.name }}
+            </small>
+          </div>
+
+          <div class="mt-auto">
+            <a [routerLink]="['/character', character.id]" 
+               class="btn btn-primary btn-sm w-100">
+              👁️ Ver Detalles
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div *ngIf="!loading && totalPages > 1" class="mt-4">
+    <nav aria-label="Paginación de personajes">
+      <ul class="pagination justify-content-center">
+        <!-- Botón anterior -->
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">
+            ← Anterior
+          </button>
+        </li>
+
+        <!-- Números de página -->
+        <li class="page-item" *ngFor="let page of getPageNumbers()" 
+            [class.active]="page === currentPage">
+          <button class="page-link" (click)="goToPage(page)">
+            {{ page }}
+          </button>
+        </li>
+
+        <!-- Botón siguiente -->
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">
+            Siguiente →
+          </button>
+        </li>
+      </ul>
+    </nav>
+    
+    <div class="text-center text-muted mt-2">
+      Página {{ currentPage }} de {{ totalPages }}
+    </div>
+  </div>
+</div>
