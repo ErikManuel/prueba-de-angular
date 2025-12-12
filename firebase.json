@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "public",
+    "public": "dist/rick-morty-directory/browser",
     "ignore": [
       "firebase.json",
       "**/.*",
